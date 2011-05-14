@@ -10,7 +10,7 @@
 
 #include <inttypes.h>
 #include "Print.h"
-#include "PinDriver.h"
+#include "LineDriver.h"
 
 // commands
 #define LCD_CLEARDISPLAY 0x01
@@ -95,22 +95,22 @@ class LiquidCrystal: public LiquidCrystalBase
 public:
   LiquidCrystal(uint8_t rs, uint8_t enable,
     uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
-    uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, PinDriver *pin_driver = 0);
+    uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, LineDriver *line_driver = 0);
 
   LiquidCrystal(uint8_t rs, uint8_t rw, uint8_t enable,
     uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
-    uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, PinDriver *pin_driver = 0);
+    uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, LineDriver *line_driver = 0);
 
   LiquidCrystal(uint8_t rs, uint8_t rw, uint8_t enable,
-    uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3, PinDriver *pin_driver = 0);
+    uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3, LineDriver *line_driver = 0);
 
   LiquidCrystal(uint8_t rs, uint8_t enable,
-    uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3, PinDriver *pin_driver = 0);
+    uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3, LineDriver *line_driver = 0);
 
 protected:
   void init(uint8_t fourbitmode, uint8_t rs, uint8_t rw, uint8_t enable,
     uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
-    uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, PinDriver *pin_driver = 0);
+    uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, LineDriver *line_driver = 0);
 
   virtual void config();
   virtual void send(uint8_t, uint8_t);
@@ -118,7 +118,7 @@ protected:
   void write8bits(uint8_t);
   void pulseEnable();
 
-  PinDriver *pins;
+  LineDriver *pins;
   uint8_t _rs_pin; // LOW: command.  HIGH: character.
   uint8_t _rw_pin; // LOW: write to LCD.  HIGH: read from LCD.
   uint8_t _enable_pin; // activated by a HIGH pulse.
