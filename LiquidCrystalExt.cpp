@@ -291,13 +291,13 @@ void LiquidCrystal::init(uint8_t fourbitmode, uint8_t rs, uint8_t rw, uint8_t en
   _data_pins[6] = d6;
   _data_pins[7] = d7; 
 
-  pins->pinConfig(_rs_pin, OUTPUT);
+  pins->lineConfig(_rs_pin, OUTPUT);
 
   // we can save 1 pin by not using RW. Indicate by passing 255 instead of pin#
   if (_rw_pin != 255)
-    pins->pinConfig(_rw_pin, OUTPUT);
+    pins->lineConfig(_rw_pin, OUTPUT);
 
-  pins->pinConfig(_enable_pin, OUTPUT);
+  pins->lineConfig(_enable_pin, OUTPUT);
   
   if (fourbitmode)
     _displayfunction = LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS;
@@ -315,8 +315,8 @@ void LiquidCrystal::config()
 {
   for (int i = 0; i < 8; ++i)
   {
-    pins->pinConfig(_data_pins[i], OUTPUT);
-    pins->pinWrite(_data_pins[i], LOW);
+    pins->lineConfig(_data_pins[i], OUTPUT);
+    pins->lineWrite(_data_pins[i], LOW);
   }
 
   /* SEE PAGE 45/46 FOR INITIALIZATION SPECIFICATION!
@@ -326,22 +326,22 @@ void LiquidCrystal::config()
   delayMicroseconds(50000);
   
   /* Now we pull both RS and R/W low to begin commands */
-  pins->pinWrite(_rs_pin, LOW);
-  pins->pinWrite(_enable_pin, LOW);
+  pins->lineWrite(_rs_pin, LOW);
+  pins->lineWrite(_enable_pin, LOW);
   
   if (_rw_pin != -1)
-    pins->pinWrite(_rw_pin, LOW);
+    pins->lineWrite(_rw_pin, LOW);
 }
 
 
 /* Write either command or data, with automatic 4/8-bit selection */
 void LiquidCrystal::send(uint8_t value, uint8_t mode)
 {
-  pins->pinWrite(_rs_pin, mode);
+  pins->lineWrite(_rs_pin, mode);
 
   /* If there is a RW pin indicated, set it low to write */
   if (_rw_pin != 255)
-    pins->pinWrite(_rw_pin, LOW);
+    pins->lineWrite(_rw_pin, LOW);
   
   if (_displayfunction & LCD_8BITMODE)
     write8bits(value); 
@@ -355,11 +355,11 @@ void LiquidCrystal::send(uint8_t value, uint8_t mode)
 
 void LiquidCrystal::pulseEnable(void)
 {
-  pins->pinWrite(_enable_pin, LOW);
+  pins->lineWrite(_enable_pin, LOW);
   delayMicroseconds(1);
-  pins->pinWrite(_enable_pin, HIGH);
+  pins->lineWrite(_enable_pin, HIGH);
   delayMicroseconds(1); // enable pulse must be >450ns
-  pins->pinWrite(_enable_pin, LOW);
+  pins->lineWrite(_enable_pin, LOW);
   delayMicroseconds(100); // commands need > 37us to settle
 }
 
@@ -368,8 +368,8 @@ void LiquidCrystal::write4bits(uint8_t value)
 {
   for (int i = 0; i < 4; ++i)
   {
-    pins->pinConfig(_data_pins[i], OUTPUT);
-    pins->pinWrite(_data_pins[i], (value >> i) & 0x01);
+    pins->lineConfig(_data_pins[i], OUTPUT);
+    pins->lineWrite(_data_pins[i], (value >> i) & 0x01);
   }
 
   pulseEnable();
@@ -380,8 +380,8 @@ void LiquidCrystal::write8bits(uint8_t value)
 {
   for (int i = 0; i < 8; ++i)
   {
-    pins->pinConfig(_data_pins[i], OUTPUT);
-    pins->pinWrite(_data_pins[i], (value >> i) & 0x01);
+    pins->lineConfig(_data_pins[i], OUTPUT);
+    pins->lineWrite(_data_pins[i], (value >> i) & 0x01);
   }
   
   pulseEnable();
