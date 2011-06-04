@@ -260,42 +260,56 @@ inline void LiquidCrystalBase::write(uint8_t value)
 
 LiquidCrystal::LiquidCrystal(uint8_t rs, uint8_t rw, uint8_t enable,
   uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
-  uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, LineDriver *line_driver)
+  uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, uint8_t backlight, LineDriver *line_driver)
 {
-  init(0, rs, rw, enable, d0, d1, d2, d3, d4, d5, d6, d7, line_driver);
+  init(0, rs, rw, enable, d0, d1, d2, d3, d4, d5, d6, d7, backlight, line_driver);
 }
 
 
 LiquidCrystal::LiquidCrystal(uint8_t rs, uint8_t enable,
   uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
-  uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, LineDriver *line_driver)
+  uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, uint8_t backlight, LineDriver *line_driver)
 {
-  init(0, rs, 255, enable, d0, d1, d2, d3, d4, d5, d6, d7, line_driver);
+  init(0, rs, 0xFF, enable, d0, d1, d2, d3, d4, d5, d6, d7, backlight, line_driver);
 }
 
 
 LiquidCrystal::LiquidCrystal(uint8_t rs, uint8_t rw, uint8_t enable,
-  uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3, LineDriver *line_driver)
+  uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3, uint8_t backlight, LineDriver *line_driver)
 {
-  init(1, rs, rw, enable, d0, d1, d2, d3, 0, 0, 0, 0, line_driver);
+  init(1, rs, rw, enable, d0, d1, d2, d3, 0, 0, 0, 0, backlight, line_driver);
 }
 
 
 LiquidCrystal::LiquidCrystal(uint8_t rs,  uint8_t enable,
-  uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3, LineDriver *line_driver)
+  uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3, uint8_t backlight, LineDriver *line_driver)
 {
-  init(1, rs, 255, enable, d0, d1, d2, d3, 0, 0, 0, 0, line_driver);
+  init(1, rs, 0xFF, enable, d0, d1, d2, d3, 0, 0, 0, 0, backlight, line_driver);
+}
+
+
+void LiquidCrystal::backlight(bool on)
+{
+  if (_backlight_pin != 0xFF)
+    _pins->lineWrite(_backlight_pin, (on ? HIGH : LOW));
+}
+
+
+void LiquidCrystal::noBacklight()
+{
+  if (_backlight_pin != 0xFF)
+    _pins->lineWrite(_backlight_pin, LOW);
 }
 
 
 void LiquidCrystal::init(uint8_t fourbitmode, uint8_t rs, uint8_t rw, uint8_t enable,
   uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3,
-  uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, LineDriver *line_driver)
+  uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7, uint8_t backlight, LineDriver *line_driver)
 {
-  pins = line_driver;
+  _pins = line_driver;
 
-  if (!pins)
-    pins = DefaultLineDriver::getInstance();
+  if (!_pins)
+    _pins = DefaultLineDriver::getInstance();
 
   _rs_pin = rs;
   _rw_pin = rw;
@@ -308,16 +322,24 @@ void LiquidCrystal::init(uint8_t fourbitmode, uint8_t rs, uint8_t rw, uint8_t en
   _data_pins[4] = d4;
   _data_pins[5] = d5;
   _data_pins[6] = d6;
-  _data_pins[7] = d7; 
+  _data_pins[7] = d7;
 
-  pins->lineConfig(_rs_pin, OUTPUT);
+  _backlight_pin = backlight;
 
-  // we can save 1 pin by not using RW. Indicate by passing 255 instead of pin#
-  if (_rw_pin != 255)
-    pins->lineConfig(_rw_pin, OUTPUT);
+  _pins->lineConfig(_rs_pin, OUTPUT);
 
-  pins->lineConfig(_enable_pin, OUTPUT);
-  
+  // we can save 1 pin by not using RW. Indicate by passing 0xFF instead of pin#
+  if (_rw_pin != 0xFF)
+    _pins->lineConfig(_rw_pin, OUTPUT);
+
+  _pins->lineConfig(_enable_pin, OUTPUT);
+
+  if (_backlight_pin != 0xFF)
+  {
+    _pins->lineConfig(_backlight_pin, OUTPUT);
+    _pins->lineWrite(_backlight_pin, LOW);
+  }
+
   if (fourbitmode)
     _displayfunction = LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS;
   else 
@@ -334,8 +356,8 @@ void LiquidCrystal::config()
 {
   for (int i = 0; i < 8; ++i)
   {
-    pins->lineConfig(_data_pins[i], OUTPUT);
-    pins->lineWrite(_data_pins[i], LOW);
+    _pins->lineConfig(_data_pins[i], OUTPUT);
+    _pins->lineWrite(_data_pins[i], LOW);
   }
 
   /* SEE PAGE 45/46 FOR INITIALIZATION SPECIFICATION!
@@ -345,22 +367,22 @@ void LiquidCrystal::config()
   delayMicroseconds(50000);
   
   /* Now we pull both RS and R/W low to begin commands */
-  pins->lineWrite(_rs_pin, LOW);
-  pins->lineWrite(_enable_pin, LOW);
+  _pins->lineWrite(_rs_pin, LOW);
+  _pins->lineWrite(_enable_pin, LOW);
   
   if (_rw_pin != -1)
-    pins->lineWrite(_rw_pin, LOW);
+    _pins->lineWrite(_rw_pin, LOW);
 }
 
 
 /* Write either command or data, with automatic 4/8-bit selection */
 void LiquidCrystal::send(uint8_t value, uint8_t mode)
 {
-  pins->lineWrite(_rs_pin, mode);
+  _pins->lineWrite(_rs_pin, mode);
 
   /* If there is a RW pin indicated, set it low to write */
-  if (_rw_pin != 255)
-    pins->lineWrite(_rw_pin, LOW);
+  if (_rw_pin != 0xFF)
+    _pins->lineWrite(_rw_pin, LOW);
   
   if (_displayfunction & LCD_8BITMODE)
     write8bits(value); 
@@ -374,11 +396,11 @@ void LiquidCrystal::send(uint8_t value, uint8_t mode)
 
 void LiquidCrystal::pulseEnable(void)
 {
-  pins->lineWrite(_enable_pin, LOW);
+  _pins->lineWrite(_enable_pin, LOW);
   delayMicroseconds(1);
-  pins->lineWrite(_enable_pin, HIGH);
+  _pins->lineWrite(_enable_pin, HIGH);
   delayMicroseconds(1); // enable pulse must be >450ns
-  pins->lineWrite(_enable_pin, LOW);
+  _pins->lineWrite(_enable_pin, LOW);
   delayMicroseconds(100); // commands need > 37us to settle
 }
 
@@ -387,8 +409,8 @@ void LiquidCrystal::write4bits(uint8_t value)
 {
   for (int i = 0; i < 4; ++i)
   {
-    pins->lineConfig(_data_pins[i], OUTPUT);
-    pins->lineWrite(_data_pins[i], (value >> i) & 0x01);
+    _pins->lineConfig(_data_pins[i], OUTPUT);
+    _pins->lineWrite(_data_pins[i], (value >> i) & 0x01);
   }
 
   pulseEnable();
@@ -399,8 +421,8 @@ void LiquidCrystal::write8bits(uint8_t value)
 {
   for (int i = 0; i < 8; ++i)
   {
-    pins->lineConfig(_data_pins[i], OUTPUT);
-    pins->lineWrite(_data_pins[i], (value >> i) & 0x01);
+    _pins->lineConfig(_data_pins[i], OUTPUT);
+    _pins->lineWrite(_data_pins[i], (value >> i) & 0x01);
   }
   
   pulseEnable();
