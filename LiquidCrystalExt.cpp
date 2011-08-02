@@ -73,11 +73,11 @@ void LiquidCrystalBase::begin(uint8_t cols, uint8_t lines, uint8_t dotsize)
     delayMicroseconds(4500); // wait min 4.1ms
 
     /* Third go! */
-    write4bits(0x03); 
+    write4bits(0x03);
     delayMicroseconds(150);
 
     /* Finally, set to 4-bit interface */
-    write4bits(0x02); 
+    write4bits(0x02);
   }
   else
   {
@@ -131,7 +131,7 @@ void LiquidCrystalBase::home()
 
 void LiquidCrystalBase::setCursor(uint8_t col, uint8_t row)
 {
-  static const int row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
+  static const int row_offsets[] = { 0x00, 0x40, 0x10, 0x50 };
   
   if (row > _numlines)
     row = _numlines - 1; // we count rows starting with zero
