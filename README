@@ -1,0 +1,4 @@
+A better replacement to standard LiquidCrystal library for Arduino. The improvements are:
+* Implementation of LineDriver interface allows you to control an LCD display through shift registers or I2C I/O extenders as with ordinary I/O pins.
+* Support for controlling the display backlight.
+* The offsets for 3rd and 4th lines are fixed enabling the correct output on 16x4 displays.
