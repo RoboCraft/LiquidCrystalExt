@@ -23,7 +23,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include "LineDriver.h"
-#include "WProgram.h"
+#include "Arduino.h"
 
 /* When the display powers up, it is configured as follows:
  *
@@ -249,9 +249,10 @@ inline void LiquidCrystalBase::command(uint8_t value)
 }
 
 
-inline void LiquidCrystalBase::write(uint8_t value)
+inline size_t LiquidCrystalBase::write(uint8_t value)
 {
   send(value, HIGH);
+  return 1; // assume success
 }
 
 
