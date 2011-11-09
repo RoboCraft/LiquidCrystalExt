@@ -1,8 +1,10 @@
 /* This is header file for LiquidCrystalExt library which adds support
  * for pin drivers to LiquidCrystal library for Arduino, thus giving
  * an opportunity to use LCD connected, for example, through a shift register.
+ * 
+ * See the article about LCDs based on HD44780 at http://robocraft.ru/blog/arduino/503.html
  *
- * (C) 2011 Artem Borisovskiy, bytefu@gmail.com
+ * Copyright (C) 2011 Artem Borisovskiy (bytefu@gmail.com), http://robocraft.ru
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
