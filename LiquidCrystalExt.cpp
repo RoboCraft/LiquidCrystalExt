@@ -23,7 +23,12 @@
 #include <string.h>
 #include <inttypes.h>
 #include "LineDriver.h"
-#include "WProgram.h"
+
+#if defined(ARDUINO) && ARDUINO >= 100
+  #include "Arduino.h"
+#else
+  #include "WProgram.h"
+#endif
 
 /* When the display powers up, it is configured as follows:
  *
@@ -243,15 +248,23 @@ void LiquidCrystalBase::createChar(uint8_t location, uint8_t charmap[])
 /*----- Mid level commands, for sending data/commands -----*/
 
 
-inline void LiquidCrystalBase::command(uint8_t value)
+void LiquidCrystalBase::command(uint8_t value)
 {
   send(value, LOW);
 }
 
 
-inline void LiquidCrystalBase::write(uint8_t value)
+#if defined(ARDUINO) && ARDUINO >= 100
+size_t LiquidCrystalBase::write(uint8_t data)
+#else
+void LiquidCrystalBase::write(uint8_t data)
+#endif
 {
-  send(value, HIGH);
+  send(data, HIGH);
+  
+  #if defined(ARDUINO) && ARDUINO >= 100
+  return 1;
+  #endif
 }
 
 
